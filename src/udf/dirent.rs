@@ -5,8 +5,10 @@ use std::{
 use libcdio_sys::{
     udf_dirent_free, udf_dirent_t, udf_enum1_t_UDF_BLOCKSIZE, udf_fopen, udf_get_file_length,
     udf_get_filename, udf_get_link_count, udf_get_posix_filemode, udf_is_dir, udf_opendir,
-    udf_read_block, udf_readdir, udf_t,
+    udf_read_block, udf_readdir
 };
+
+use super::fs::Udf;
 
 pub const UDF_BLOCKSIZE: usize = udf_enum1_t_UDF_BLOCKSIZE as usize;
 
@@ -15,7 +17,7 @@ pub struct Dirent<'udf> {
     /// This is an [Option] because we might sometimes move it out of
     /// this struct, so calling `drop()` is unnecessary.
     pub ptr: *const udf_dirent_t,
-    _udf: PhantomData<&'udf udf_t>,
+    _udf: &'udf mut Udf,
 }
 
 unsafe impl Send for Dirent<'_> {}

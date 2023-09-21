@@ -15,15 +15,15 @@ use super::dirent::{Dirent, UDF_BLOCKSIZE};
 /// An opened UDF filesystem.
 ///
 /// The underlying file pointer is freed on drop.
-struct Inner {
+pub(crate) struct Udf {
     p_udf: *mut udf_s,
 }
 
-unsafe impl Send for Inner {}
-unsafe impl Sync for Inner {}
+unsafe impl Send for Udf {}
+unsafe impl Sync for Udf {}
 
-impl Inner {
-    pub fn open(path: impl AsRef<Path>) -> Inner {
+impl Udf {
+    pub fn open(path: impl AsRef<Path>) -> Udf {
         let path = path.as_ref();
         let p_udf = unsafe { udf_open(path.as_os_str().as_bytes().as_ptr() as *const i8) };
         if p_udf == ptr::null_mut() {
@@ -43,7 +43,7 @@ impl Inner {
     }
 }
 
-impl Drop for Inner {
+impl Drop for Udf {
     fn drop(&mut self) {
         unsafe {
             udf_close(self.p_udf);
@@ -52,12 +52,12 @@ impl Drop for Inner {
 }
 
 pub struct UdfFs {
-    inner: Inner,
+    inner: Udf,
 }
 
 impl UdfFs {
     pub fn open(path: impl AsRef<Path>) -> UdfFs {
-        let fs = Inner::open(path);
+        let fs = Udf::open(path);
         Self { inner: fs.into() }
     }
 }
